@@ -1,14 +1,22 @@
 <ion-header>
   <ion-navbar>
     <ion-title>
-      Ionic Blank
+      Home
     </ion-title>
   </ion-navbar>
 </ion-header>
 
 <ion-content padding>
-  The world is your oyster.
-  <p>
-    If you get lost, the <a href="http://ionicframework.com/docs/v2">docs</a> will be your guide.
-  </p>
+  <div class="img-box">
+    <img src="assets/imgs/txt-home-logo.png" alt="">
+  </div>
+  <button ion-button [outline]="isOutline" [round]="isRound" style="width: 100%;" (click)="register()">
+    Register
+  </button>
+  <button ion-button [outline]="isOutline" [round]="isRound" style="width: 100%;" (click)="signIn()">
+    Sign In
+  </button>
+  <button ion-button [outline]="isOutline" [round]="isRound" style="width: 100%;" (click)="signOut()">
+    Sign Out
+  </button>
 </ion-content>

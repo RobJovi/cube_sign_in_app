@@ -1,0 +1,50 @@
+<ion-header color="navbar">
+  <ion-navbar color="navbar">
+    <ion-title>New Application</ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content padding>
+  <div>
+    <!-- Form designed to record all apps on tablet -->
+    <form (ngSubmit)="next()" #applicationForm="ngForm">
+      <!-- Input Field for the first name -->
+      <ion-item>
+        <ion-label color="primary" stacked>First Name</ion-label>
+        <ion-input type="text" [(ngModel)]="application.first_name" name="first_name" required></ion-input>
+      </ion-item>
+      <!-- Input field for the last name -->
+      <ion-item>
+        <ion-label color="primary" stacked>Last Name</ion-label>
+        <ion-input type="text" [(ngModel)]="application.last_name" name="last_name" required></ion-input>
+      </ion-item>
+      <!-- Input field for the Email -->
+      <ion-item>
+        <ion-label color="primary" stacked>Email</ion-label>
+        <ion-input type="email" [(ngModel)]="application.email" name="email" required email></ion-input>
+      </ion-item>
+      <!-- Input filed for the phone number -->
+      <ion-item>
+        <ion-label color="primary" stacked>Phone Number</ion-label>
+        <ion-input type="tel" [(ngModel)]="application.phone_number" name="phone_number" required></ion-input>
+      </ion-item>
+      <!-- Submit Button -->
+      <button ion-button type="submit" [outline]="isOutline" [round]="isRound" style="width: 100%;" class="margin" [disabled]="!applicationForm.valid">
+        Next
+      </button>
+    </form>
+    <!-- End form -->
+  </div>
+</ion-content>
+
+
+
+
+<!-- <ion-item>
+        <ion-label color="primary" stacked>Teacher Name</ion-label>
+        <ion-input type="text" [(ngModel)]="application.teacher" name="teacher"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label color="primary" stacked>College Counselor</ion-label>
+        <ion-input type="text" [(ngModel)]="application.counselor" name="counselor"></ion-input>
+      </ion-item> -->
