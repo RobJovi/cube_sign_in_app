@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, NgZone } from '@angular/core';
 import { IonicPage, NavController, NavParams } from 'ionic-angular';
 import { Http, Headers } from '@angular/http';
 import 'rxjs/add/operator/map';
@@ -20,8 +20,9 @@ export class SignOutPage {
   searchList = [];
   loader: any;
   done = false;
+  url;
 
-  constructor(public file: File, public loadingCtrl: LoadingController, public alertCtrl: AlertController, public http: Http, public navCtrl: NavController, public navParams: NavParams) {
+  constructor(public transfer: FileTransfer,public zone : NgZone,public file: File, public loadingCtrl: LoadingController, public alertCtrl: AlertController, public http: Http, public navCtrl: NavController, public navParams: NavParams) {
     this.pullInfo();
   }
 
@@ -30,7 +31,7 @@ export class SignOutPage {
     // start the loader
     this.presentLoader();
     // pull information from database
-    this.http.get('http://ec2-54-244-178-153.us-west-2.compute.amazonaws.com:3000/cubeApp/findSignedIn')
+    this.http.get('https://txt-server.herokuapp.com/cubeApp/findSignedIn')
       .map(res => res.json())
       .subscribe(result => {
         this.applications = result.data;
@@ -42,18 +43,53 @@ export class SignOutPage {
   // check if images exists if not download it
   loadImgs(callback) {
     for (let i in this.applications) {
-      this.file.checkFile(this.applications[i].local_img_url, this.applications[i].image_name)
-        .then(result => {
-          console.log("fetching local img");
-          this.applications[i].current_img_src = this.applications[i].local_img_url;
-        })
-        .catch(err => {
-          this.applications[i].current_img_src = this.applications[i].web_img_url;
-        })
+      this.applications[i].current_img_src = this.applications[i].web_img_url;
+      // this.file.checkFile(this.file.dataDirectory, this.applications[i].image_name)
+      //   .then(result => {
+ 
+      //     if( result == true){
+      //       this.downloadImg(this.applications[i],i);
+      //     }else{
+      //       this.applications[i].current_img_src = this.applications[i].local_img_url;
+      //     }
+      //   })
+      //   .catch(err => {
+      //     console.log(err);
+      //     this.downloadImg(this.applications[i],i);
+      //   })
       if (i == String(this.applications.length - 1)) {
         callback;
       }
     }
+  }
+  // downloads the image to device
+  downloadImg(app,i) {
+    console.log("downloading");
+    console.log(app);
+    const fileTransfer: FileTransferObject = this.transfer.create();
+    const url = app.web_img_url;
+    const destination = this.file.dataDirectory + app.image_name;
+    console.log(destination);
+
+    fileTransfer.download(url, destination)
+      .then((data) => {
+        console.log(data)
+        this.url = data.nativeURL;
+        
+        this.setImgSrc(i);
+      }, (err) => {
+        console.log(err)
+      })
+
+
+  }
+  // set new img src
+  setImgSrc(i) {
+    this.zone.run(() =>{
+      console.log(this.url);
+      this.applications[i].current_img_src = this.url;
+    })
+    
   }
   // finish loading and display view
   loadImgsCallback() {
@@ -84,7 +120,7 @@ export class SignOutPage {
   signOut(data) {
     // present sign in loader
     this.presentSignOutLoader();
-    this.http.post('http://ec2-54-244-178-153.us-west-2.compute.amazonaws.com:3000/signIn/signOut', data)
+    this.http.post('https://txt-server.herokuapp.com/signIn/signOut', data)
       .map(res => res.json())
       .subscribe(result => {
         console.log(result)
@@ -96,7 +132,7 @@ export class SignOutPage {
   }
   // Update the user sign status
   updateUserStatus(data) {
-    this.http.post('http://ec2-54-244-178-153.us-west-2.compute.amazonaws.com:3000/cubeApp/updateUserStatus-SignOut', data)
+    this.http.post('https://txt-server.herokuapp.com/cubeApp/updateUserStatus-SignOut', data)
       .map(res => res.json())
       .subscribe(result => {
         this.loader.dismiss();

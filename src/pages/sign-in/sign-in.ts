@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component , NgZone} from '@angular/core';
 import { IonicPage, NavController, NavParams } from 'ionic-angular';
 import { Http, Headers } from '@angular/http';
 import 'rxjs/add/operator/map';
@@ -8,7 +8,10 @@ import { LoadingController } from 'ionic-angular';
 import { HomePage } from "../home/home";
 import { File } from '@ionic-native/file';
 import { FileTransfer, FileUploadOptions, FileTransferObject } from '@ionic-native/file-transfer';
+import { FileOpener } from '@ionic-native/file-opener';
 import { FilePath } from '@ionic-native/file-path';
+import { Base64 } from '@ionic-native/base64';
+
 
 @Component({
   selector: 'page-sign-in',
@@ -19,8 +22,9 @@ export class SignInPage {
   searchList = [];
   loader: any;
   done = false;
+  url;
 
-  constructor(public file: File, public loadingCtrl: LoadingController, public alertCtrl: AlertController, public http: Http, public navCtrl: NavController, public navParams: NavParams) {
+  constructor(private fileOpener: FileOpener, public base64: Base64, public zone: NgZone, private transfer: FileTransfer, public file: File, public loadingCtrl: LoadingController, public alertCtrl: AlertController, public http: Http, public navCtrl: NavController, public navParams: NavParams) {
     this.pullInfo();
   }
   // pull information from database
@@ -28,7 +32,7 @@ export class SignInPage {
     // start the loader
     this.presentLoader();
     // pull information from database
-    this.http.get('http://ec2-54-244-178-153.us-west-2.compute.amazonaws.com:3000/cubeApp/findSignedOut')
+    this.http.get('https://txt-server.herokuapp.com/cubeApp/findSignedOut')
       .map(res => res.json())
       .subscribe(result => {
         this.applications = result.data;
@@ -40,18 +44,56 @@ export class SignInPage {
   // check if images exists if not download it
   loadImgs(callback) {
     for (let i in this.applications) {
-      this.file.checkFile(this.applications[i].local_img_url, this.applications[i].image_name)
-        .then(result => {
-          console.log("fetching local img");
-          this.applications[i].current_img_src = this.applications[i].local_img_url;
-        })
-        .catch(err => {
-          this.applications[i].current_img_src = this.applications[i].web_img_url;
-        })
+      this.applications[i].current_img_src = this.applications[i].web_img_url;
+      // this.file.checkFile(this.file.dataDirectory, this.applications[i].image_name)
+      //   .then(result => {
+ 
+      //     if( result == true){
+      //       this.downloadImg(this.applications[i],i);
+      //     }else{
+      //       this.applications[i].current_img_src = this.applications[i].local_img_url;
+      //     }
+      //   })
+      //   .catch(err => {
+      //     console.log(err);
+      //     this.downloadImg(this.applications[i],i);
+      //   })
       if (i == String(this.applications.length - 1)) {
         callback;
       }
     }
+  }
+  // downloads the image to device
+  downloadImg(app,i) {
+    const fileTransfer: FileTransferObject = this.transfer.create();
+    const url = app.web_img_url;
+    const destination = this.file.dataDirectory + app.image_name;
+
+
+    fileTransfer.download(url, destination)
+      .then((data) => {
+        this.url = data.toURL();  
+        this.setImgSrc(i);
+      }, (err) => {
+        console.log(err)
+      })
+
+
+  }
+  // set new img src
+  setImgSrc(i) {
+    this.zone.run(() =>{
+
+      this.applications[i].current_img_src = this.url;
+
+
+      this.fileOpener.open(this.url, 'image/jpeg')
+      .then(() => console.log('File is opened'))
+      .catch(e => console.log('Error openening file', e));
+      
+    })
+
+
   }
   // finish loading and display view
   loadImgsCallback() {
@@ -82,7 +124,7 @@ export class SignInPage {
   signIn(data) {
     // present sign in loader
     this.presentSignInLoader();
-    this.http.post('http://ec2-54-244-178-153.us-west-2.compute.amazonaws.com:3000/signIn/signIn', data)
+    this.http.post('https://txt-server.herokuapp.com/signIn/signIn', data)
       .map(res => res.json())
       .subscribe(result => {
         this.updateUserStatus(data);
@@ -92,7 +134,7 @@ export class SignInPage {
   }
   // Update the user sign status
   updateUserStatus(data) {
-    this.http.post('http://ec2-54-244-178-153.us-west-2.compute.amazonaws.com:3000/cubeApp/updateUserStatus-SignIn', data)
+    this.http.post('https://txt-server.herokuapp.com/cubeApp/updateUserStatus-SignIn', data)
       .map(res => res.json())
       .subscribe(result => {
         this.loader.dismiss();
@@ -181,7 +223,7 @@ export class SignInPage {
     // get current timestamp and convert to slack format
     var temp = +new Date();
     var date = Math.floor(temp / 1000);
-    var datePayload = "<!date^"+ date +"^{date} at {time}|Today at Right Now>";
+    var datePayload = "<!date^" + date + "^{date} at {time}|Today at Right Now>";
     // build full name string
     var name = data.first_name + " " + data.last_name;
     // build attachment payload
@@ -211,19 +253,19 @@ export class SignInPage {
   }
   // present successful login
   presentSuccess() {
-      const alert = this.alertCtrl.create({
-        title: 'Login Succesful',
-        subTitle: "Thank you for loggin in",
-        buttons: [
-          {
-            text: 'Dismiss',
-            handler: ()=>{
-              this.navCtrl.setRoot(HomePage);
-            }
+    const alert = this.alertCtrl.create({
+      title: 'Login Succesful',
+      subTitle: "Thank you for loggin in",
+      buttons: [
+        {
+          text: 'Dismiss',
+          handler: () => {
+            this.navCtrl.setRoot(HomePage);
           }
-        ]
-      });
-      alert.present();
-    }
+        }
+      ]
+    });
+    alert.present();
+  }
 
 }

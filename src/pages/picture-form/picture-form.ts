@@ -13,7 +13,6 @@ import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/retry';
 import { AlertController } from 'ionic-angular';
 
-declare var cordova: any;
 
 @Component({
   selector: 'page-picture-form',
@@ -111,7 +110,9 @@ export class PictureFormPage {
   // takes resolved path and image name and saves it locally
   saveImg(path, currentName, newName) {
     // take image and copy to app data storage
-    this.file.copyFile(path, currentName, cordova.file.dataDirectory, newName).then(success => {
+    this.file.copyFile(path, currentName, this.file.dataDirectory, newName).then(success => {
+      console.log("image saved correctly");
+      console.log(success);
       this.application.local_img_url = success.nativeURL;
       // next upload image to server AWS
       this.uploadImg();
@@ -127,11 +128,14 @@ export class PictureFormPage {
       fileKey: 'pic',
       fileName: this.imgName
     }
-    fileTransfer.upload(this.application.local_img_url, 'http://10.0.2.2:3000/cubeApp/uploadProfilePic', options)
+    fileTransfer.upload(this.application.local_img_url, 'https://txt-server.herokuapp.com/cubeApp/uploadProfilePic', options)
       .then((data) => {
         this.application.image_name = this.imgName;
-        this.application.web_img_url = data.response;
-        console.log(data.response);
+        var parsed = JSON.parse(data.response);
+        this.application.web_img_url = parsed.data;
+        var result = this.application.web_img_url.substr(0,this.application.web_img_url.lastIndexOf('?'));
+        result = result + '?raw=1'
+        this.application.web_img_url = result;
         // next upload the application data
         this.uploadData();
       }, (err) => {
@@ -141,7 +145,7 @@ export class PictureFormPage {
   // uploads data for every app
   uploadData() {
     //http://ec2-54-244-178-153.us-west-2.compute.amazonaws.com:3000/cubeApp/saveApp
-    this.http.post('http://10.0.2.2:3000/cubeApp/saveApp', this.application)
+    this.http.post('https://txt-server.herokuapp.com/cubeApp/saveApp', this.application)
       .map(res => res.json())
       .subscribe(
       response => {

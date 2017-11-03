@@ -18,15 +18,24 @@ import { Http } from '@angular/http';
 export class RegisterPage {
   application = {
     signed_in: false,
-    first_name: "Roberto",
-    last_name: "Sanchez",
-    email:"robb177@gmail.com",
-    phone_number:"2133009188",
-    school:"West Los Angeles College",
-    img_url: "assets/img/placeholder.png"
+    first_name: "",
+    last_name: "",
+    email:"",
+    phone_number:"",
+    school:"",
+    img_url: ""
   };
 
   constructor(public navCtrl: NavController, public navParams: NavParams) {
+    this.application = {
+      signed_in: false,
+      first_name: "",
+      last_name: "",
+      email:"",
+      phone_number:"",
+      school:"",
+      img_url: ""
+    };
   }
 
   ionViewDidLoad() {

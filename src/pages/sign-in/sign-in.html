@@ -20,7 +20,7 @@
     <ion-list *ngFor="let app of searchList">
       <ion-item>
         <ion-thumbnail item-start>
-          <img *ngIf="app.current_img_src" [src]="app.current_img_src" alt="assets/imgs/placeholder.png">
+          <img *ngIf="app.current_img_src" [src]="app.current_img_src" >
         </ion-thumbnail>
         <h2>{{app.first_name}} {{app.last_name}}</h2>
         <p>{{app.school}} &bull;

@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<p id="demo" onclick="myFunction()"></p>
+
+<script>
+
+    var string = "https://www.dropbox.com/s/t4p25ddj3yk5m25/RobertoSanchezfRYeA.jpg?dl=0";
+        var result = string.substr(0,string.lastIndexOf('?'));
+        result = result + '?raw=1'
+        document.getElementById("demo").innerHTML = result;
+
+</script>
+
+</body>
+</html> 

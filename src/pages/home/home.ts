@@ -15,7 +15,7 @@ export class HomePage {
   }
 
   register(){
-    this.navCtrl.push(RegisterPage);
+    //this.navCtrl.push(RegisterPage);
   }
   signIn(){
     this.navCtrl.push(SignInPage);

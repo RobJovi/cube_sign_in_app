@@ -19,6 +19,8 @@ import { File } from '@ionic-native/file';
 import { FileTransfer } from '@ionic-native/file-transfer';
 import { FilePath } from '@ionic-native/file-path';
 import { HttpModule } from '@angular/http';
+import { Base64 } from '@ionic-native/base64';
+import { FileOpener } from '@ionic-native/file-opener';
 
 @NgModule({
   declarations: [
@@ -52,6 +54,8 @@ import { HttpModule } from '@angular/http';
     File,
     FileTransfer,
     FilePath,
+    Base64,
+    FileOpener,
     {provide: ErrorHandler, useClass: IonicErrorHandler}
   ]
 })
